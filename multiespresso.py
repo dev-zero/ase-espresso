@@ -66,9 +66,9 @@ class multiespresso:
                         a = self.calculators[i].cerr.readline()
                         notdone |= (a!='' and a[:17]!='!    total energy')
                         if a[:13]=='     stopping':
-                            raise RuntimeError, 'problem with calculator #%d' % i
+                            raise RuntimeError('problem with calculator #%d' % i)
                         elif a[:20]=='     convergence NOT':
-                            raise RuntimeError, 'calculator #%d did not converge' % i
+                            raise RuntimeError('calculator #%d did not converge' % i)
                         elif a[1:17]!='    total energy':
                             stderr.write(a)
                         else:
@@ -85,7 +85,7 @@ class multiespresso:
 
     def set_images(self, images):
         if len(images)!=self.ncalc:
-            raise ValueError, 'number of images (%d) doesn\'t match number of calculators (%d)' % (len(images),self.ncalc)
+            raise ValueError('number of images (%d) doesn\'t match number of calculators (%d)' % (len(images),self.ncalc))
         for i in range(self.ncalc):
             images[i].set_calculator(self.calculators[i])
         self.images = images

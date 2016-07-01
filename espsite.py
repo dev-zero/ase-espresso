@@ -9,7 +9,7 @@ class config:
         self.submitdir = '.'
         self.batch = False
         self.mpi_not_setup = True
-        if not os.environ.has_key('ESP_PSP_PATH'):
+        if 'ESP_PSP_PATH' not in os.environ:
             os.environ['ESP_PSP_PATH'] = '.'
 
     def do_perProcMpiExec(self, workdir, program):

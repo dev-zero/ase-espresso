@@ -64,7 +64,7 @@ def cleanup(tmp, scratch, removewf, removesave, calc, site):
     os.chdir(tmp)
     os.system(pernodeexec + ' rm -r '+scratch+' 2>/dev/null')
     os.chdir(cdir)
-    if hasattr(site, 'mpdshutdown') and not os.environ.has_key('QEASE_MPD_ISSHUTDOWN'):
+    if hasattr(site, 'mpdshutdown') and 'QEASE_MPD_ISSHUTDOWN' not in os.environ:
         os.environ['QEASE_MPD_ISSHUTDOWN'] = 'yes'
         os.system(site.mpdshutdown)
 

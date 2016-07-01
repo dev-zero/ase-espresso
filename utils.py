@@ -72,11 +72,11 @@ def convert_constraints(atoms):
                     elif isinstance(d, constraints.FixInternals.FixDihedral):
                         otherconstr.append("'torsional_angle' %d %d %d %d %s" % (d.indices[0]+1,d.indices[1]+1,d.indices[2]+1,d.indices[3]+1,num2str(np.arccos(d.angle)*180./np.pi)))
                     else:
-                        raise NotImplementedError, 'constraint '+d.__name__+' from FixInternals not implemented\n' \
-                            'consider ase-based relaxation with this constraint instead'                        
+                        raise NotImplementedError('constraint '+d.__name__+' from FixInternals not implemented\n' \
+                            'consider ase-based relaxation with this constraint instead')
             else:
-                raise NotImplementedError, 'constraint '+c.__name__+' not implemented\n' \
-                    'consider ase-based relaxation with this constraint instead'
+                raise NotImplementedError('constraint '+c.__name__+' not implemented\n' \
+                    'consider ase-based relaxation with this constraint instead')
         return forcefilter,otherconstr
     else:
         return [],[]

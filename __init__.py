@@ -10,10 +10,10 @@ gitver = 'GITVERSION'
 import os
 
 try:
-    import espsite
+    from . import espsite
 except ImportError:
-    print '*** ase-espresso requires a site-specific espsite.py in PYTHONPATH.'
-    print '*** You may use the espsite.py.example.* in the git checkout as templates.'
+    print('*** ase-espresso requires a site-specific espsite.py in PYTHONPATH.')
+    print('*** You may use the espsite.py.example.* in the git checkout as templates.')
     raise ImportError
 site = espsite.config()
 
@@ -21,10 +21,9 @@ from ase.calculators.general import Calculator
 import atexit
 import sys, string
 import numpy as np
-from types import FileType, StringType
-from constants import *
-from utils import *
-from subdirs import *
+from .constants import *
+from .utils import *
+from .subdirs import *
 
 # ase controlled pw.x's register themselves here, so they can be
 # stopped automatically
@@ -394,7 +393,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         if type(kpts)==float or type(kpts)==int:
             from ase.calculators.calculator import kptdensity2monkhorstpack
             kpts = kptdensity2monkhorstpack(atoms, kpts)
-        elif isinstance(kpts, StringType):
+        elif isinstance(kpts, str):
             assert kpts == 'gamma'
         else:
             assert len(kpts) == 3
@@ -594,11 +593,11 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             atoms.set_calculator(self)
 
         if hasattr(site, 'mpi_not_setup') and self.onlycreatepwinp is None:
-            print '*** Without cluster-adjusted espsite.py, ase-espresso can only be used'
-            print '*** to create input files for pw.x via the option onlycreatepwinp.'
-            print '*** Otherwise, ase-espresso requires a site-specific espsite.py'
-            print '*** in PYTHONPATH.'
-            print '*** You may use the espsite.py.example.* in the git checkout as templates.'
+            print('*** Without cluster-adjusted espsite.py, ase-espresso can only be used')
+            print('*** to create input files for pw.x via the option onlycreatepwinp.')
+            print('*** Otherwise, ase-espresso requires a site-specific espsite.py')
+            print('*** in PYTHONPATH.')
+            print('*** You may use the espsite.py.example.* in the git checkout as templates.')
             raise ImportError
 
 
@@ -621,7 +620,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             try:
                 self.psppath = os.environ['ESP_PSP_PATH']
             except:
-                print 'Unable to find pseudopotential path.  Consider setting ESP_PSP_PATH environment variable'
+                print('Unable to find pseudopotential path.  Consider setting ESP_PSP_PATH environment variable')
                 raise
         if self.dipole is None:
             self.dipole = {'status':False}
@@ -631,7 +630,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         if self.convergence is None:
             self.conv_thr = 1e-6/rydberg
         else:
-            if self.convergence.has_key('energy'):
+            if 'energy' in self.convergence:
                 self.conv_thr = self.convergence['energy']/rydberg
             else:
                 self.conv_thr = 1e-6/rydberg
@@ -654,11 +653,11 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
                 self.log = self.txt
             self.scratch = mkscratch(self.localtmp, site)
             if self.output is not None:
-                if self.output.has_key('removewf'):
+                if 'removewf' in self.output:
                     removewf = self.output['removewf']
                 else:
                     removewf = True
-                if self.output.has_key('removesave'):
+                if 'removesave' in self.output:
                     removesave = self.output['removesave']
                 else:
                     removesave = False
@@ -741,7 +740,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             if type(self.U)==dict:
                 Ulist = np.zeros(len(symbols), np.float)
                 for i,s in enumerate(symbols):
-                    if self.U.has_key(s):
+                    if s in self.U:
                         Ulist[i] = self.U[s]
             else:
                 Ulist = list(self.U)
@@ -754,7 +753,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             if type(self.J)==dict:
                 Jlist = np.zeros(len(symbols), np.float)
                 for i,s in enumerate(symbols):
-                    if self.J.has_key(s):
+                    if s in self.J:
                         Jlist[i] = self.J[s]
             else:
                 Jlist = list(self.J)
@@ -767,7 +766,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             if type(self.U_alpha)==dict:
                 U_alphalist = np.zeros(len(symbols), np.float)
                 for i,s in enumerate(symbols):
-                    if self.U_alpha.has_key(s):
+                    if s in self.U_alpha:
                         U_alphalist[i] = self.U_alpha[s]
             else:
                 U_alphalist = list(self.U_alpha)
@@ -784,7 +783,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             symcounter[s] = 0
         for i in range(len(symbols)):
             key = symbols[i]+'_m%.14eU%.14eJ%.14eUa%.14e' % (magmoms[i],Ulist[i],Jlist[i],U_alphalist[i])
-            if dic.has_key(key):
+            if key in dic:
                 self.specprops.append((dic[key][1],pos[i]))
             else:
                 symcounter[symbols[i]] += 1
@@ -825,7 +824,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         overridekpts=None, overridekptshift=None, overridenbands=None,
         suppressforcecalc=False, usetetrahedra=False):
         if self.atoms is None:
-            raise ValueError, 'no atoms defined'
+            raise ValueError('no atoms defined')
         if self.cancalc:
             fname = self.localtmp+'/'+filename
             #f = open(self.localtmp+'/pw.inp', 'w')
@@ -866,14 +865,14 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             if self.calcstress:
                 print >>f, '  tstress=.true.,'
             if self.output is not None:
-                if self.output.has_key('avoidio'):
+                if 'avoidio' in self.output:
                     if self.output['avoidio']:
                         self.output['disk_io'] = 'none'
-                if self.output.has_key('disk_io'):
+                if 'disk_io' in self.output:
                     if self.output['disk_io'] in ['high', 'low', 'none']:
                         print >>f, '  disk_io=\''+self.output['disk_io']+'\','
 
-                if self.output.has_key('wf_collect'):
+                if 'wf_collect' in self.output:
                     if self.output['wf_collect']:
                         print >>f, '  wf_collect=.true.,'
         if self.opt_algorithm!='ase3' or not self.cancalc:
@@ -941,7 +940,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             if self.tot_magnetization != 'hund':
                 self.totmag = self.tot_magnetization
             else:
-                from atomic_configs import hundmag
+                from .atomic_configs import hundmag
                 self.totmag = sum([hundmag(x) for x in self.atoms.get_chemical_symbols()])
             print >>f, '  tot_magnetization='+num2str(self.totmag*inimagscale)+','
         print >>f, '  ecutwfc='+num2str(self.pw/rydberg)+','
@@ -1030,15 +1029,15 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         if dipfield or efield:
             print >>f, '  edir='+str(edir)+','
         if dipfield:
-            if self.dipole.has_key('emaxpos'):
+            if 'emaxpos' in self.dipole:
                 emaxpos = self.dipole['emaxpos']
             else:
                 emaxpos = self.find_max_empty_space(edir)
-            if self.dipole.has_key('eopreg'):
+            if 'eopreg' in self.dipole:
                 eopreg = self.dipole['eopreg']
             else:
                 eopreg = 0.025
-            if self.dipole.has_key('eamp'):
+            if 'eamp' in self.dipole:
                 eamp = self.dipole['eamp']
             else:
                 eamp = 0.0
@@ -1046,15 +1045,15 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             print >>f, '  eopreg='+num2str(eopreg)+','
             print >>f, '  eamp='+num2str(eamp)+','
         if efield:
-            if self.field.has_key('emaxpos'):
+            if 'emaxpos' in self.field:
                 emaxpos = self.field['emaxpos']
             else:
                 emaxpos = 0.0
-            if self.field.has_key('eopreg'):
+            if 'eopreg' in self.field:
                 eopreg = self.field['eopreg']
             else:
                 eopreg = 0.0
-            if self.field.has_key('eamp'):
+            if 'eamp' in self.field:
                 eamp = self.field['eamp']
             else:
                 eamp = 0.0
@@ -1367,7 +1366,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         ### closing PWscf input file ###
         f.close()
         if self.verbose == 'high':
-            print '\nPWscf input file %s written\n' % fname
+            print('\nPWscf input file %s written\n' % fname)
 
     def set_atoms(self, atoms):
         if self.atoms is None or not self.started:
@@ -1511,18 +1510,18 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
                     break
             if a[:20]=='     convergence NOT':
                 self.stop()
-                raise RuntimeError, 'scf cycles did not converge\nincrease maximum number of steps and/or decreasing mixing'
+                raise RuntimeError('scf cycles did not converge\nincrease maximum number of steps and/or decreasing mixing')
             elif a[:13]=='     stopping':
                 self.stop()
                 self.checkerror()
                 #if checkerror shouldn't find an error here,
                 #throw this generic error
-                raise RuntimeError, 'SCF calculation failed'
+                raise RuntimeError('SCF calculation failed')
             elif a=='' and self.calcmode in ('ase3','relax','scf','vc-relax','vc-md','md'):
                 self.checkerror()
                 #if checkerror shouldn't find an error here,
                 #throw this generic error
-                raise RuntimeError, 'SCF calculation failed'
+                raise RuntimeError('SCF calculation failed')
             self.atom_occ = atom_occ
             self.results['magmoms'] = magmoms
             if self.calcmode in ('ase3','relax','scf','vc-relax','vc-md','md','hund'):
@@ -1574,22 +1573,22 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
                     a = self.cout.readline()
                     s.write(a)
                     if not self.dontcalcforces:
-			while a[:11]!='     Forces':
-			    a = self.cout.readline()
-			    s.write(a)
-			    s.flush()
-			a = self.cout.readline()
-			s.write(a)
-			self.forces = np.empty((self.natoms,3), np.float)
-			for i in range(self.natoms):
-			    a = self.cout.readline()
-			    while a.find('force')<0:
-				s.write(a)
-				a = self.cout.readline()
-			    s.write(a)
-			    forceinp = a.split()
-			    self.forces[i][:] = [float(x) for x in forceinp[len(forceinp)-3:]]
-			self.forces *= rydberg_over_bohr
+                        while a[:11]!='     Forces':
+                            a = self.cout.readline()
+                            s.write(a)
+                            s.flush()
+                        a = self.cout.readline()
+                        s.write(a)
+                        self.forces = np.empty((self.natoms,3), np.float)
+                        for i in range(self.natoms):
+                            a = self.cout.readline()
+                            while a.find('force')<0:
+                                s.write(a)
+                                a = self.cout.readline()
+                            s.write(a)
+                            forceinp = a.split()
+                            self.forces[i][:] = [float(x) for x in forceinp[len(forceinp)-3:]]
+                        self.forces *= rydberg_over_bohr
                     else:
                         self.forces = None
             else:
@@ -1993,7 +1992,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         p.close()
 
         if len(s)!=3:
-            raise RuntimeError, 'stress was not calculated\nconsider specifying calcstress or running a unit cell relaxation'
+            raise RuntimeError('stress was not calculated\nconsider specifying calcstress or running a unit cell relaxation')
 
         stress = np.empty((3,3), np.float)
         for i in range(3):
@@ -2048,7 +2047,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         try:
             n = int(p.readline().split()[0].strip(':'))
         except:
-            raise RuntimeError, 'Espresso executable doesn\'t seem to have been started.'
+            raise RuntimeError('Espresso executable doesn\'t seem to have been started.')
         p.close()
 
         p = os.popen(('tail -n +%d ' % n)+self.log+' | grep -n %%%%%%%%%%%%%%%% |tail -2','r')
@@ -2074,7 +2073,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         msg = ''
         for e in err:
             msg += e
-        raise RuntimeError, msg[:len(msg)-1]
+        raise RuntimeError(msg[:len(msg)-1])
 
     def relax_cell_and_atoms(self,
             cell_dynamics='bfgs', # {'none', 'sd', 'damp-pr', 'damp-w', 'bfgs'}
@@ -2186,9 +2185,9 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
 
     def run_ppx(self, inp, log=None, inputpp=[], plot=[],
         output_format=5, iflag=3, piperead=False, parallel=True):
-        if self.output.has_key('disk_io'):
+        if 'disk_io' in self.output:
             if self.output['disk_io'] == 'none':
-                print "run_ppx requires output['disk_io'] to be at least 'low' and avoidio=False"
+                print("run_ppx requires output['disk_io'] to be at least 'low' and avoidio=False")
         self.stop()
         f = open(self.localtmp+'/'+inp, 'w')
         print >>f, '&INPUTPP\n  prefix=\'calc\',\n  outdir=\'.\','
@@ -2229,7 +2228,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             efermi = float(p.readline().split()[-2])
             p.close()
         except:
-            raise RuntimeError, 'get_fermi_level called before DFT calculation was run'
+            raise RuntimeError('get_fermi_level called before DFT calculation was run')
         return efermi
 
 
@@ -2349,7 +2348,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             else:
                 #ncomponents = 2*j+1 +1  (latter for m summed up)
                 ncomponents = int(2.*float(channel[jpos+2:]))+2
-            if not self.pdos[iatom].has_key(channel):
+            if channel not in self.pdos[iatom]:
                 self.pdos[iatom][channel] = np.zeros((ncomponents,npoints), np.float)
                 first = True
             else:
@@ -2468,7 +2467,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         while a.find('<ATM')<0 and a!='':
             a = f.readline()
         if a=='':
-            raise RuntimeError, 'no projections found'
+            raise RuntimeError('no projections found')
 
         while True:
             while a.find('<ATM')<0 and a!='':
@@ -2570,7 +2569,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             f.write(x)
             x = stream.readline()
         if x=='':
-            raise RuntimeError, 'error reading 3D data grid'
+            raise RuntimeError('error reading 3D data grid')
         f.write(x)
         nx, ny, nz = [int(y) for y in stream.readline().split()]
         origin = np.array([float(y) for y in stream.readline().split()])
@@ -2596,7 +2595,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
             f.write(x)
             x = stream.readline()
         if x=='':
-            raise RuntimeError, 'error reading 2D data grid'
+            raise RuntimeError('error reading 2D data grid')
         f.write(x)
         nx, ny = [int(y) for y in stream.readline().split()]
         origin = np.array([float(y) for y in stream.readline().split()])
@@ -2627,7 +2626,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='down' or spin==2:
             s = 2
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
 
         p = self.run_ppx('charge.inp',
             inputpp=[['plot_num',0],['spin_component',s]],
@@ -2648,7 +2647,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='down' or spin==2:
             s = 2
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
 
         self.run_ppx('charge.inp',
             inputpp=[['plot_num',0],['spin_component',s]],
@@ -2668,7 +2667,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='down' or spin==2:
             s = 2
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
 
         p = self.run_ppx('totalpot.inp',
             inputpp=[['plot_num',1],['spin_component',s]],
@@ -2689,7 +2688,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='down' or spin==2:
             s = 2
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
 
         self.run_ppx('totalpot.inp',
             inputpp=[['plot_num',1],['spin_component',s]],
@@ -2831,7 +2830,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='z':
             s = 3
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
         if self.spinpol:
             p = os.popen('grep "number of k points=" '+self.log+'|tail -1|tr \'=\' \' \'', 'r')
             nkp = int(p.readline().split()[4])
@@ -2870,7 +2869,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='z':
             s = 3
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
         if self.spinpol:
             p = os.popen('grep "number of k points=" '+self.log+'|tail -1|tr \'=\' \' \'', 'r')
             nkp = int(p.readline().split()[4])
@@ -2947,7 +2946,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='down' or spin==2:
             s = 2
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
 
         inputpp=[['plot_num',10],['spin_component',s]]
         efermi = self.get_fermi_level()
@@ -2975,7 +2974,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='down' or spin==2:
             s = 2
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
 
         inputpp=[['plot_num',10],['spin_component',s]]
         efermi = self.get_fermi_level()
@@ -3050,7 +3049,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='z':
             s = 3
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
         p = self.run_ppx('noncollmag.inp',
             inputpp=[['plot_num',13],['spin_component',s]],
             piperead=True, parallel=False)
@@ -3072,7 +3071,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='z':
             s = 3
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
         self.run_ppx('noncollmag.inp',
             inputpp=[['plot_num',13],['spin_component',s]],
             plot=[['fileout',self.topath(xsf)]],
@@ -3091,7 +3090,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='down' or spin==2:
             s = 2
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
 
         p = self.run_ppx('aecharge.inp',
             inputpp=[['plot_num',17],['spin_component',s]],
@@ -3112,7 +3111,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         elif spin=='down' or spin==2:
             s = 2
         else:
-            raise ValueError, 'unknown spin component'
+            raise ValueError('unknown spin component')
 
         self.run_ppx('aecharge.inp',
             inputpp=[['plot_num',17],['spin_component',s]],
@@ -3261,7 +3260,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
         # if there's a dipole, we need to return 2 work functions - one for either direction away from the slab
         if self.dipole['status']:
             eopreg = 0.025
-            if self.dipole.has_key('eopreg'):
+            if 'eopreg' in self.dipole:
                 eopreg = self.dipole['eopreg']
             # we use cell_length*eopreg*2.5 here since the work functions seem to converge at that distance rather than *1 or *2
             vac_pos1 = (vacuum_pos - cell_length*eopreg*2.5) % cell_length
@@ -3306,7 +3305,7 @@ svn co --username anonymous http://qeforge.qe-forge.org/svn/q-e/branches/espress
 
 
     def get_world(self):
-        from worldstub import world
+        from .worldstub import world
         return world(site.nprocs)
 
 
